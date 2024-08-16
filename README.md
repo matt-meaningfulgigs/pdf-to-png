@@ -1,78 +1,131 @@
 # AI Studio PDF Resizer
 
-This script, `ai_studio_pdf_resizer.py`, converts each page of a PDF into high-quality PNG images, resizes them if they exceed specified dimensions, and compresses them if their file size exceeds 10 megabytes. The images are saved in a directory named after the PDF file.
+This repository contains two scripts for handling PDFs: one converts PDF pages to PNG images and the other resizes PDFs while keeping them in PDF format.
 
-## How It Works
+## Scripts Overview
 
-The script uses Ghostscript to convert the PDF pages into PNG images and then uses Pillow to resize and compress the images if needed. The maximum dimensions for each PNG image are set to 4800x4800 pixels, and the maximum file size is set to 10 megabytes.
+### 1. `ai_studio_pdf_to_png.py`
+
+This script converts each page of a PDF into high-quality PNG images, resizes them if they exceed specified dimensions, and compresses them if their file size exceeds 10 megabytes. The images are saved in a directory named after the PDF file.
+
+#### How It Works
+
+The script uses Ghostscript to convert the PDF pages into PNG images and then uses Pillow to resize and compress the images if needed. The maximum dimensions for each PNG image are set to 3600x3600 pixels, and the maximum file size is set to 10 megabytes.
 
 The script will:
 
 1. Take a PDF file as input.
 2. Create a directory with the same name as the PDF file (excluding the `.pdf` extension).
 3. Convert each page of the PDF into a PNG image using Ghostscript.
-4. Resize each PNG image to ensure its dimensions do not exceed 4800x4800 pixels, maintaining the aspect ratio.
-5. Compress each PNG image if its file size exceeds 10 megabytes, reducing the quality incrementally until it falls below the size threshold.
-6. Save each resized and compressed PNG image in the created directory, with filenames like `page_001.png`, `page_002.png`, etc.
+4. Resize each PNG image to ensure its dimensions do not exceed 3600x3600 pixels, maintaining the aspect ratio.
+5. Compress each PNG image if its file size exceeds 10 megabytes, reducing the quality incrementally until it meets the file size requirement.
 
-### Handling Large Images
+### 2. `ai_studio_pdf_resizer.py`
 
-- The script is configured to handle very large images by disabling Pillow's default protection against processing images with extremely large pixel dimensions. This is done by setting `Image.MAX_IMAGE_PIXELS = None` in the script.
-- **Important**: While this change allows the script to handle large images, it may consume significant system resources (memory and CPU) when processing such files. Ensure your system has enough resources to handle the images you're working with.
+This script resizes a PDF by adjusting its page dimensions and DPI, keeping the output as a PDF. It ensures the PDF pages are no larger than 3600x3600 pixels and allows you to set the DPI to control the quality and file size.
 
-### Detailed Code Explanation
+#### How It Works
 
-- **Imports**: The script uses four modules:
-  - `os`: For handling file and directory paths.
-  - `subprocess`: For running Ghostscript as an external command.
-  - `sys`: For accessing command-line arguments.
-  - `PIL.Image`: From the Pillow library, used for resizing and compressing images.
-  
-- **Function `pdf_to_pngs(input_pdf_path, max_file_size_mb=10)`**:
-  - Extracts the base name of the PDF file to name the output directory.
-  - Creates the output directory if it doesn't exist.
-  - Constructs a command to run Ghostscript, specifying the output format, resolution, and other necessary options.
-  - Runs the Ghostscript command to convert the PDF pages to PNGs.
-  - Uses Pillow to open each PNG image and resize it if necessary to fit within the 4800x4800 pixel limit.
-  - Compresses the image if its file size exceeds 10 megabytes by reducing the image quality until it fits within the threshold.
-  - Saves the resized and compressed images in the output directory.
-  
-- **Main Script Execution**:
-  - Checks if the script was run with a PDF file as a command-line argument.
-  - If not, it prints usage instructions and exits.
-  - If a PDF file is provided, it calls the `pdf_to_pngs` function to perform the conversion, resizing, and compression.
+The script uses Ghostscript to resize the content of the PDF to fit within the specified page dimensions, with a default DPI of 150. It also applies the `/screen` PDF setting to reduce the overall file size, making it suitable for on-screen viewing.
 
-## How to Use
+The script will:
 
-1. **Ensure Ghostscript and Pillow are Installed**:
-   - Run `gs --version` in your terminal to check if Ghostscript is installed.
-   - If not, you can install it:
-     - **Windows**: Download from the [official Ghostscript website](https://www.ghostscript.com/download/gsdnld.html).
-     - **Mac**: Install via Homebrew with `brew install ghostscript`.
-     - **Linux**: Install via your package manager, e.g., `sudo apt-get install ghostscript`.
-   - Ensure Pillow is installed for image resizing and compression:
-     ```bash
+1. Take a PDF file as input.
+2. Resize each page of the PDF to fit within 3600x3600 pixels.
+3. Adjust the DPI to 150 (or another value specified by the user) to control the output quality.
+4. Save the resized PDF as a new file with `_resized` appended to the original file name.
+
+## Installation Instructions
+
+### Prerequisites
+
+Before running the scripts, you need to install Ghostscript and Python with the Pillow library. Follow the instructions below for your operating system.
+
+### Windows Installation
+
+1. **Open Command Prompt**:
+   - Press `Windows + R`, type `cmd`, and press `Enter`.
+
+2. **Install Ghostscript**:
+   - Visit the Ghostscript download page: [Ghostscript Downloads](https://www.ghostscript.com/download/gsdnld.html).
+   - Download the appropriate installer for your system (usually the latest 64-bit version).
+   - Run the installer and follow the instructions.
+   - During installation, ensure you select the option to "Add installation path to the system PATH" if available.
+
+3. **Install Python**:
+   - Visit the Python download page: [Python Downloads](https://www.python.org/downloads/).
+   - Download the latest Python installer for Windows.
+   - Run the installer and check the box that says "Add Python to PATH" before clicking "Install Now".
+
+4. **Install Pillow**:
+   - Open Command Prompt (if not already open) and type the following command:
+     ```sh
      pip install Pillow
      ```
 
-2. **Save the Script**:
-   - Save the provided code as `ai_studio_pdf_resizer.py` on your computer.
-
-3. **Run the Script**:
-   - Open a terminal and navigate to the directory where you saved the script.
-   - Run the script by typing:
-     ```bash
-     python3 ai_studio_pdf_resizer.py /path/to/your/input.pdf
+5. **Verify Installation**:
+   - To check that everything is installed correctly, run the following commands in the Command Prompt:
+     ```sh
+     python --version
+     gswin64c --version
+     pip show Pillow
      ```
-   - Replace `/path/to/your/input.pdf` with the path to the PDF file you want to convert.
 
-4. **Output**:
-   - The script will create a folder in the same directory as the PDF file, with the same name as the PDF (excluding the `.pdf` extension).
-   - Inside this folder, you will find PNG images of each page of the PDF, resized to fit within 4800x4800 pixels and compressed to be under 10 megabytes if necessary.
+   - You should see the Python version, Ghostscript version, and details about the Pillow package.
 
-## Example
+### Mac Installation
 
-If you have a PDF named `example.pdf` in your current directory, running:
+1. **Open Terminal**:
+   - Press `Command + Space`, type `Terminal`, and press `Enter`.
 
-```bash
-python3 ai_studio_pdf_resizer.py example.pdf
+2. **Install Homebrew** (if not already installed):
+   - Homebrew is a package manager for macOS. Install it by running the following command in Terminal:
+     ```sh
+     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+     ```
+
+3. **Install Ghostscript**:
+   - Once Homebrew is installed, run the following command to install Ghostscript:
+     ```sh
+     brew install ghostscript
+     ```
+
+4. **Install Python**:
+   - If you don’t have Python installed, you can install it using Homebrew:
+     ```sh
+     brew install python
+     ```
+
+5. **Install Pillow**:
+   - With Python installed, you can now install Pillow using pip:
+     ```sh
+     pip install Pillow
+     ```
+
+6. **Verify Installation**:
+   - To ensure everything is installed correctly, run the following commands in Terminal:
+     ```sh
+     python3 --version
+     gs --version
+     pip show Pillow
+     ```
+
+   - You should see the Python version, Ghostscript version, and details about the Pillow package.
+
+## Usage
+
+### For `ai_studio_pdf_to_png.py`
+
+To convert a PDF to PNGs, use the following command:
+
+```sh
+python ai_studio_pdf_to_png.py <input_pdf_path>
+```
+
+### For ai_studio_pdf_resizer.py
+
+To resize a PDF, use the following command:
+
+``` sh
+python ai_studio_pdf_resizer.py <input_pdf_path>
+```

@@ -2,7 +2,7 @@ import os  # For handling file and directory paths
 import subprocess  # For running Ghostscript as an external command
 import sys  # For accessing command-line arguments
 
-def resize_pdf(input_pdf_path, max_dimensions=(4800, 4800), resolution=72):
+def resize_pdf(input_pdf_path, max_dimensions=(3600, 3600), resolution=72):
     # Extract the base name of the PDF file (without the extension)
     base_name = os.path.splitext(os.path.basename(input_pdf_path))[0]
     
